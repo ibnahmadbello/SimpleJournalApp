@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "912096076507",
+    "firebase_url": "https://my-journal-app-bb374.firebaseio.com",
+    "project_id": "my-journal-app-bb374",
+    "storage_bucket": "my-journal-app-bb374.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912096076507:android:97bfb67490d51977",
+        "android_client_info": {
+          "package_name": "com.example.regent.simplejournalapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSZb8c8qhvCmqQY1sWgV-UWzsq7a6HDWg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

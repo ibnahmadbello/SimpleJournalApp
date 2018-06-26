@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SimpleJournalApp</string>
+
+    <string name="sign_up_label">Sign Up</string>
 </resources>
