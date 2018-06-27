@@ -24,12 +24,20 @@
         android:layout_marginTop="10dp"
         tools:text="@tools:sample/full_names"/>
 
+    <View
+        android:id="@+id/horizontal_line_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimaryDark"
+        android:layout_margin="5dp"
+        android:layout_below="@id/user_mail"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        android:layout_below="@id/user_mail"/>
+        android:layout_below="@id/horizontal_line_divider"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
