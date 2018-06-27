@@ -19,7 +19,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/JournalPencil"
+            android:src="@drawable/journalpencil"
             android:layout_marginBottom="30dp"/>
 
         <android.support.design.widget.TextInputLayout
@@ -72,6 +72,11 @@
             android:text="Forget Password"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent"/>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <Button
             android:id="@+id/sign_up_button"

@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">SimpleJournalApp</string>
 
-    <string name="sign_up_label">Sign Up</string>
+    <string name="login_label">Login Screen</string>
+
+    <string name="sign_out_menu">Sign Out</string>
+    
+    <string name="default_web_client_id">912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com</string>
+
+
 </resources>

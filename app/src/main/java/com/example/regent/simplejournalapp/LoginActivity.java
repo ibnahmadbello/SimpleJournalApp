@@ -12,6 +12,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,6 +28,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button signUpButton, loginButton, resetPasswordButton;
     private ProgressBar progressBar;
     private FirebaseAuth firebaseAuth;
+    private SignInButton signInButton;
+    private GoogleSignInClient mGoogleSignInClient;
+
+    private static final String TAG = LoginActivity.class.getSimpleName();
+    private static final int RC_SIGN_IN = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +53,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginButton =  findViewById(R.id.login_button);
         resetPasswordButton = findViewById(R.id.reset_password_button);
         progressBar = findViewById(R.id.progress_bar);
+        signInButton = findViewById(R.id.google_sign_in);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
         signUpButton.setOnClickListener(this);
         loginButton.setOnClickListener(this);
         resetPasswordButton.setOnClickListener(this);
+        signInButton.setOnClickListener(this);
+
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
     }
 
@@ -99,6 +117,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 }
                             }
                         });
+                break;
+            case R.id.google_sign_in:
+                signIn();
+                break;
+        }
+    }
+
+    private void signIn(){
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null){
+            startActivity(new Intent(LoginActivity.this, JournalActivity.class));
+        } else {
+            startActivity(new Intent(LoginActivity.this, LoginActivity.class));
         }
     }
 }
