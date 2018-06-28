@@ -25,7 +25,7 @@
         tools:text="@tools:sample/date/mmddyy"/>
 
     <TextView
-        android:id="@+id/journal_detail"
+        android:id="@+id/journal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/timestamp"

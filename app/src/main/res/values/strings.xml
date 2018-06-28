@@ -7,5 +7,7 @@
     
     <string name="default_web_client_id">912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com</string>
 
+    <string name="journal_title">New Journal</string>
 
+    <string name="type_your_journal_here_hint">Enter your Journal here!</string>
 </resources>
