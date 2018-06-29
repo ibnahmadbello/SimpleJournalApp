@@ -14,7 +14,7 @@
         android:layout_marginBottom="10dp"
         android:fontFamily="sans-serif-medium"
         android:textSize="15sp"
-        android:text="@string/journal_title" />
+        android:text="@string/new_journal_title" />
 
     <EditText
         android:id="@+id/journal_detail"

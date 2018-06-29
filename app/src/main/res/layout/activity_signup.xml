@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".SignUpActivity">
 
     <LinearLayout
@@ -32,6 +31,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
+                android:focusedByDefault="false"
                 android:hint="Email Address"
                 android:textColor="@android:color/white"/>
 
@@ -45,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
+                android:focusedByDefault="false"
                 android:focusableInTouchMode="true"
                 android:inputType="textPassword"
                 android:maxLines="1"
@@ -81,6 +82,16 @@
             android:textSize="15sp"
             android:textColor="@android:color/white"
             android:text="Already Registered. Login"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/skip_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:text="@string/skip_login_signup"
             android:textAllCaps="false"/>
 
     </LinearLayout>

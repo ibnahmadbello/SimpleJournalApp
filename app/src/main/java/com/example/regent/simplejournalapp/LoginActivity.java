@@ -70,6 +70,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (account != null || firebaseUser != null){
+            startActivity(new Intent(this, JournalActivity.class));
+            finish();
+        }
+    }
+
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.sign_up_button:
@@ -128,7 +140,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    @Override
+    /*@Override
     protected void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
@@ -144,7 +156,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
     }
-
+*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

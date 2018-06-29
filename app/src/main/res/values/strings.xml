@@ -4,8 +4,14 @@
     <string name="login_label">Login Screen</string>
 
     <string name="sign_out_menu">Sign Out</string>
-    
-    <string name="default_web_client_id">912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com</string>
+
+    <string name="reset_password">Reset Password</string>
+
+    <string name="back">Back</string>
+
+    <string name="skip_login_signup">Skip Login/SignUp</string>
+
+    <!--<string name="default_web_client_id">912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com</string>-->
 
     <string name="new_journal_title">New Journal</string>
 

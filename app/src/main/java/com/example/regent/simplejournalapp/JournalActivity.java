@@ -7,6 +7,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,7 +18,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
 import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.utils.JournalAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,8 +35,10 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private FloatingActionButton floatingActionButton;
+    private RecyclerView recyclerView;
 
-
+    private JournalAdapter journalAdapter;
+    private JournalHelperDatabase helperDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +46,17 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_journal);
 
         firebaseAuth = FirebaseAuth.getInstance();
+        journalAdapter = new JournalAdapter(this, journalList);
+
+        recyclerView = findViewById(R.id.recycler_view);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(journalAdapter);
 
         floatingActionButton = findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
+
+        helperDatabase = new JournalHelperDatabase(this);
 
     }
 
@@ -53,20 +67,38 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
     private void createJournal(String journal) {
         // inserting journal in db and getting
         // newly inserted journal id
-        long id = db.insertNote(journal);
+        long id = helperDatabase.insertJournal(journal);
 
         // get the newly inserted note from db
-        Note n = db.getNote(id);
+        Journal journal1 = helperDatabase.getJournal(id);
 
-        if (n != null) {
-            // adding new note to array list at 0 position
-            notesList.add(0, n);
+        if (journal1 != null) {
+            // adding new journal to array list at 0 position
+            journalList.add(0, journal1);
 
             // refreshing the list
-            mAdapter.notifyDataSetChanged();
+            journalAdapter.notifyDataSetChanged();
 
-            toggleEmptyNotes();
         }
+    }
+
+    /**
+     * Updating journal in the DB and updating
+     * item in the list by its position
+     */
+    private void updateJournal(String journal, int position){
+        Journal journal1 = journalList.get(position);
+
+        // updating journal text
+        journal1.setJournal(journal);
+
+        // updating quote in DB
+        helperDatabase.updateJournal(journal1);
+
+        // refreshing the list
+        journalList.set(position, journal1);
+
+        journalAdapter.notifyDataSetChanged();
     }
 
     @Override

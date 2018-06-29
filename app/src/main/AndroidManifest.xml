@@ -12,8 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/login_label">
+            android:name=".SignUpActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,8 +20,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ResetPasswordActivity" />
+        <activity android:name=".LoginActivity"></activity>
         <activity android:name=".JournalActivity"></activity>
-        <activity android:name=".SignUpActivity"></activity>
     </application>
 
 </manifest>
