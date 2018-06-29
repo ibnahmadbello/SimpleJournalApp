@@ -23,7 +23,8 @@
         android:hint="@string/type_your_journal_here_hint"
         android:lines="5"
         android:gravity="center"
-        android:textSize="20dp"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
         android:inputType="textLongMessage|textMultiLine"/>
 
 </LinearLayout>

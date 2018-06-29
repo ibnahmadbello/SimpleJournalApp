@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,6 +14,7 @@
         android:background="@color/colorPrimary">
 
         <ImageView
+            android:contentDescription="@string/sign_up_journal"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
@@ -31,8 +31,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
-                android:focusedByDefault="false"
-                android:hint="Email Address"
+                android:hint="@string/email_address_hint"
                 android:textColor="@android:color/white"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -44,9 +43,7 @@
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
-                android:focusedByDefault="false"
-                android:focusableInTouchMode="true"
+                android:hint="@string/password_hint"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:textColor="@android:color/white" />
@@ -57,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="?android:textAppearanceSmall"
-            android:text="Sign Up"
+            android:text="@string/sign_up"
             android:textColor="@android:color/black"
             android:textStyle="bold"
             android:background="@color/colorAccent"
@@ -69,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:background="@null"
-            android:text="Forget Password"
+            android:text="@string/forget_password"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent"/>
 
@@ -81,7 +78,7 @@
             android:background="@null"
             android:textSize="15sp"
             android:textColor="@android:color/white"
-            android:text="Already Registered. Login"
+            android:text="@string/already_registered"
             android:textAllCaps="false"/>
 
         <Button
