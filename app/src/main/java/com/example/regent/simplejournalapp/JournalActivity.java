@@ -69,7 +69,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         // newly inserted journal id
         long id = helperDatabase.insertJournal(journal);
 
-        // get the newly inserted note from db
+        // get the newly inserted journal from db
         Journal journal1 = helperDatabase.getJournal(id);
 
         if (journal1 != null) {
@@ -141,7 +141,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
     /**
      * Shows alert dialog with EditText options to enter / edit
      * a journal.
-     * when shouldUpdate=true, it automatically displays old note and changes the
+     * when shouldUpdate=true, it automatically displays old journal and changes the
      * button text to UPDATE
      */
     private void showJournalDialog(final boolean shouldUpdate, final Journal journal, final int position) {
@@ -152,6 +152,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         alertDialogBuilderUserInput.setView(view);
 
         final EditText inputJournal = view.findViewById(R.id.journal_detail);
+        final String journalText = inputJournal.getText().toString();
         TextView dialogTitle = view.findViewById(R.id.journal_title);
         dialogTitle.setText(!shouldUpdate ? getString(R.string.new_journal_title) : getString(R.string.update_journal_title));
 
@@ -180,19 +181,19 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
             public void onClick(View v) {
                 // Show toast message when no text is entered
                 if (TextUtils.isEmpty(inputJournal.getText().toString())) {
-                    Toast.makeText(JournalActivity.this, "Enter note!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(JournalActivity.this, "Enter your Journal!", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
                     alertDialog.dismiss();
                 }
 
-                // check if user updating note
+                // check if user updating journal
                 if (shouldUpdate && journal != null) {
-                    // update note by it's id
+                    // update journal by it's id
                     updateJournal(inputJournal.getText().toString(), position);
                 } else {
-                    // create new note
-                    createJournal(inputJournal.getText().toString());
+                    // create new journal
+                    createJournal(journalText);
                 }
             }
         });

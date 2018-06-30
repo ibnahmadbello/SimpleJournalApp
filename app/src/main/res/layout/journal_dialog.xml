@@ -3,9 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingTop="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="@dimen/dimension16"
+    android:paddingTop="@dimen/dimension16"
+    android:paddingRight="@dimen/dimension16">
 
     <TextView
         android:id="@+id/journal_title"
