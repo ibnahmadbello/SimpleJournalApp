@@ -58,6 +58,8 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
         helperDatabase = new JournalHelperDatabase(this);
 
+        journalList.addAll(helperDatabase.getAllJournal());
+
     }
 
     /**
@@ -152,7 +154,6 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         alertDialogBuilderUserInput.setView(view);
 
         final EditText inputJournal = view.findViewById(R.id.journal_detail);
-        final String journalText = inputJournal.getText().toString();
         TextView dialogTitle = view.findViewById(R.id.journal_title);
         dialogTitle.setText(!shouldUpdate ? getString(R.string.new_journal_title) : getString(R.string.update_journal_title));
 
@@ -193,7 +194,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
                     updateJournal(inputJournal.getText().toString(), position);
                 } else {
                     // create new journal
-                    createJournal(journalText);
+                    createJournal(inputJournal.getText().toString());
                 }
             }
         });

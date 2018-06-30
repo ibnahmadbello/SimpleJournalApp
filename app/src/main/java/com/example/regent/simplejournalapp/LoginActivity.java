@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    @Override
+/*    @Override
     protected void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             startActivity(new Intent(this, JournalActivity.class));
             finish();
         }
-    }
+    }*/
 
 
     @Override

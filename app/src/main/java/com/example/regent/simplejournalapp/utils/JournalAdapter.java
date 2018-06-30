@@ -35,7 +35,7 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
             super(view);
             dot = view.findViewById(R.id.dot);
             timestamp = view.findViewById(R.id.timestamp);
-            journaldetail = view.findViewById(R.id.journal_detail);
+            journaldetail = view.findViewById(R.id.journal);
         }
 
     }
