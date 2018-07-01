@@ -140,7 +140,6 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
                 new String[]{String.valueOf(journal.getId())});
         db.close();
 
-        getJournalsCount();
     }
 
 
