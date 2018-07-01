@@ -42,4 +42,8 @@
     <string name="sign_up">Sign Up</string>
 
     <string name="sign_up_journal">Sign Up Journal</string>
+
+    <string name="first_part_display_count">You have </string>
+
+    <string name="second_part_display_count"> entries in your journal.</string>
 </resources>

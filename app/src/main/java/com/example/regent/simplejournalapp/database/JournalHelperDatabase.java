@@ -134,11 +134,13 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
                 new String[]{String.valueOf(journal.getId())});
     }
 
-    public void deleteNote(Journal journal) {
+    public void deleteJournal(Journal journal) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Journal.TABLE_NAME, Journal.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(journal.getId())});
         db.close();
+
+        getJournalsCount();
     }
 
 

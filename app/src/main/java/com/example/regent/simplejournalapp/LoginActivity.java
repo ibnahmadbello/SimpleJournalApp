@@ -86,6 +86,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()){
             case R.id.sign_up_button:
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+                finish();
                 break;
             case R.id.reset_password_button:
                 startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
@@ -128,6 +129,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 }
                             }
                         });
+                finish();
                 break;
             case R.id.google_sign_in:
                 signIn();

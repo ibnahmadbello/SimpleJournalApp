@@ -117,6 +117,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.skip_button:
                 startActivity(new Intent(this, JournalActivity.class));
+                finish();
                 break;
         }
     }

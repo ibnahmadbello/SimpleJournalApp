@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
 import com.example.regent.simplejournalapp.database.model.Journal;
 import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
+import com.example.regent.simplejournalapp.utils.RecyclerTouchListener;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,11 +36,13 @@ import java.util.List;
 
 public class JournalActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private static final String TAG = JournalActivity.class.getSimpleName();
     private List<Journal> journalList = new ArrayList<>();
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
+    TextView journalCountDisplay;
 
     private JournalAdapter journalAdapter;
     private JournalHelperDatabase helperDatabase;
@@ -65,6 +69,27 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
         journalList.addAll(helperDatabase.getAllJournal());
 
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView,
+                new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                showActionsDialog(position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+
+        journalCountDisplay = findViewById(R.id.user_mail);
+        try {
+            journalCountDisplay.setText(getResources().getString(R.string.first_part_display_count)
+                    + " " + helperDatabase.getJournalsCount() + " " +getResources().getString(R.string.second_part_display_count));
+        } catch (Exception e){
+            Log.d(TAG, "Error message: " + e.getMessage());
+        }
+
     }
 
     /**
@@ -87,6 +112,8 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
             journalAdapter.notifyDataSetChanged();
 
         }
+
+
     }
 
     /**
@@ -141,7 +168,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         switch (view.getId()){
             case R.id.fab:
                 showJournalDialog(false, null, -1);
-                return;
+                break;
         }
     }
 
@@ -212,16 +239,33 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
     private void deleteJournal(int position) {
         // deleting the journal from db
-        helperDatabase.deleteNote(journalList.get(position));
+        helperDatabase.deleteJournal(journalList.get(position));
 
         // removing the journal from the list
         journalList.remove(position);
         journalAdapter.notifyItemRemoved(position);
 
-
-
     }
 
+    /**
+     * Opens dialog with Edit and Delete options
+     */
+    private void showActionsDialog(final int position){
+        CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Option");
+        builder.setItems(colors, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int option) {
+                if (option == 0){
+                    showJournalDialog(true, journalList.get(position), position);
+                } else {
+                    deleteJournal(position);
+                }
+            }
+        });
+        builder.show();
+    }
 
 }

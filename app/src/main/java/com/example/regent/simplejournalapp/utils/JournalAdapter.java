@@ -72,11 +72,12 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
      * Input: 2018-06-28 15:32:42
      * Output: June 28
      */
-    private String formatDate(String dateStr) {
+    private String formatDate(String dateString) {
         try {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = fmt.parse(dateStr);
-            SimpleDateFormat fmtOut = new SimpleDateFormat("MMM d");
+            Date date = fmt.parse(dateString);
+//            SimpleDateFormat fmtOut = new SimpleDateFormat("MMM d");
+            SimpleDateFormat fmtOut = new SimpleDateFormat("EEEE, MMM d, yyyy HH:mm");
             return fmtOut.format(date);
         } catch (ParseException e) {
 
