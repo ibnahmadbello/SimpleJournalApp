@@ -7,8 +7,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
 import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,6 +54,8 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new ItemDividerDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recyclerView.setAdapter(journalAdapter);
 
         floatingActionButton = findViewById(R.id.fab);
@@ -199,6 +204,24 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
     }
+
+    /**
+     * Deleting journal from SQLite and removing the
+     * item from the list by its position
+     **/
+
+    private void deleteJournal(int position) {
+        // deleting the journal from db
+        helperDatabase.deleteNote(journalList.get(position));
+
+        // removing the journal from the list
+        journalList.remove(position);
+        journalAdapter.notifyItemRemoved(position);
+
+
+
+    }
+
 
 
 }

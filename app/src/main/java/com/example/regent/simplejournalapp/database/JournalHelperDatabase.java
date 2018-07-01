@@ -141,4 +141,6 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
+
+
 }
