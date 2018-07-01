@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/dimension16"
+    android:paddingTop="@dimen/dimension16"
+    android:paddingRight="@dimen/dimension16">
+
+    <TextView
+        android:id="@+id/journal_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="15sp"
+        android:text="@string/new_journal_title" />
+
+    <EditText
+        android:id="@+id/journal_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/type_your_journal_here_hint"
+        android:lines="5"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:inputType="textLongMessage|textMultiLine"/>
+
+</LinearLayout>

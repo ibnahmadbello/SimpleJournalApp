@@ -1,3 +1,49 @@
 <resources>
     <string name="app_name">SimpleJournalApp</string>
+
+    <string name="login_label">Login Screen</string>
+
+    <string name="sign_out_menu">Sign Out</string>
+
+    <string name="reset_password">Reset Password</string>
+
+    <string name="back">Back</string>
+
+    <string name="skip_login_signup">Skip Login/SignUp</string>
+
+    <!--<string name="default_web_client_id">912096076507-sqluiboljchhm1phi9coo9bon9steggb.apps.googleusercontent.com</string>-->
+
+    <string name="new_journal_title">New Journal</string>
+
+    <string name="update_journal_title">Update Journal</string>
+
+    <string name="type_your_journal_here_hint">Enter your new Journal here!</string>
+
+    <string name="journal_page_image">Journal Image</string>
+
+    <string name="login_journal">Login Journal Picture</string>
+
+    <string name="email_address_hint">Email Address</string>
+
+    <string name="password_hint">Password</string>
+
+    <string name="login_button">Log In</string>
+
+    <string name="forget_password">Forget Password?</string>
+
+    <string name="no_account_yet">No Account Yet? Register Here</string>
+
+    <string name="reset_password_forget">Forget Password?</string>
+
+    <string name="reset_password_text">We just need your registered Email id to send you password reset instructions</string>
+
+    <string name="already_registered">Already Registered. Login</string>
+
+    <string name="sign_up">Sign Up</string>
+
+    <string name="sign_up_journal">Sign Up Journal</string>
+
+    <string name="first_part_display_count">You have </string>
+
+    <string name="second_part_display_count"> entries in your journal.</string>
 </resources>
