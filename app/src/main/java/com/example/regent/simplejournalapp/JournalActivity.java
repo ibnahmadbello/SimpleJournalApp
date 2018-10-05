@@ -8,8 +8,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,8 +22,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
+import com.example.regent.simplejournalapp.database.model.AppDatabase;
 import com.example.regent.simplejournalapp.database.model.JournalEntry;
+import com.example.regent.simplejournalapp.utils.AppExecutors;
 import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
 import com.example.regent.simplejournalapp.utils.RecyclerTouchListener;
@@ -33,7 +36,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JournalActivity extends AppCompatActivity implements View.OnClickListener{
+public class JournalActivity extends AppCompatActivity implements JournalAdapter.ItemClickListener{
 
     private static final String TAG = JournalActivity.class.getSimpleName();
     private List<JournalEntry> mJournalEntryList = new ArrayList<>();
@@ -44,7 +47,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
     TextView journalCountDisplay;
 
     private JournalAdapter journalAdapter;
-    private JournalHelperDatabase helperDatabase;
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,87 +55,55 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_journal);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        journalAdapter = new JournalAdapter(this, mJournalEntryList);
+        journalAdapter = new JournalAdapter(this, this);
 
         recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new ItemDividerDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recyclerView.setAdapter(journalAdapter);
 
+        DividerItemDecoration decoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(decoration);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                AppExecutors.getInstance().diskIO().execute(new Runnable(){
+                    @Override
+                    public void run() {
+                        int position = viewHolder.getAdapterPosition();
+                        List<JournalEntry> journals = journalAdapter.getJournalEntries();
+                        mDb.taskDao().deleteJournal(journals.get(position));
+                    }
+                });
+            }
+        }).attachToRecyclerView(recyclerView);
+
         floatingActionButton = findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(this);
-
-        helperDatabase = new JournalHelperDatabase(this);
-
-        mJournalEntryList.addAll(helperDatabase.getAllJournal());
-
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView,
-                new RecyclerTouchListener.ClickListener() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view, int position) {
-                showActionsDialog(position);
+            public void onClick(View view) {
+                Intent addJournalIntent = new Intent(JournalActivity.this, AddJournalActivity.class);
+                startActivity(addJournalIntent);
             }
+        });
 
-            @Override
-            public void onLongClick(View view, int position) {
 
-            }
-        }));
 
-        journalCountDisplay = findViewById(R.id.user_mail);
-        try {
-            journalCountDisplay.setText(getResources().getString(R.string.first_part_display_count)
-                    + " " + helperDatabase.getJournalsCount() + " " +getResources().getString(R.string.second_part_display_count));
-        } catch (Exception e){
-            Log.d(TAG, "Error message: " + e.getMessage());
-        }
-
-    }
-
-    /**
-     * Inserting new journal in db
-     * and refreshing the list
-     */
-    private void createJournal(String journal) {
-        // inserting journal in db and getting
-        // newly inserted journal id
-        long id = helperDatabase.insertJournal(journal);
-
-        // get the newly inserted journal from db
-        JournalEntry journalEntry1 = helperDatabase.getJournal(id);
-
-        if (journalEntry1 != null) {
-            // adding new journal to array list at 0 position
-            mJournalEntryList.add(0, journalEntry1);
-
-            // refreshing the list
-            journalAdapter.notifyDataSetChanged();
-
-        }
 
 
     }
 
-    /**
-     * Updating journal in the DB and updating
-     * item in the list by its position
-     */
-    private void updateJournal(String journal, int position){
-        JournalEntry journalEntry1 = mJournalEntryList.get(position);
 
-        // updating journal text
-        journalEntry1.setJournal(journal);
 
-        // updating quote in DB
-        helperDatabase.updateJournal(journalEntry1);
-
-        // refreshing the list
-        mJournalEntryList.set(position, journalEntry1);
-
-        journalAdapter.notifyDataSetChanged();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -162,14 +133,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.fab:
-                showJournalDialog(false, null, -1);
-                break;
-        }
-    }
+
 
     /**
      * Shows alert dialog with EditText options to enter / edit
@@ -231,40 +195,10 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    /**
-     * Deleting journal from SQLite and removing the
-     * item from the list by its position
-     **/
-
-    private void deleteJournal(int position) {
-        // deleting the journal from db
-        helperDatabase.deleteJournal(mJournalEntryList.get(position));
-
-        // removing the journal from the list
-        mJournalEntryList.remove(position);
-        journalAdapter.notifyItemRemoved(position);
-
+    @Override
+    public void onItemClickListener(int itemId) {
+        Intent intent = new Intent(JournalActivity.this, AddJournalActivity.class);
+        intent.putExtra(AddJournalActivity.EXTRA_TASK_ID, itemId);
+        startActivity(intent);
     }
-
-    /**
-     * Opens dialog with Edit and Delete options
-     */
-    private void showActionsDialog(final int position){
-        CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Option");
-        builder.setItems(colors, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int option) {
-                if (option == 0){
-                    showJournalDialog(true, mJournalEntryList.get(position), position);
-                } else {
-                    deleteJournal(position);
-                }
-            }
-        });
-        builder.show();
-    }
-
 }
