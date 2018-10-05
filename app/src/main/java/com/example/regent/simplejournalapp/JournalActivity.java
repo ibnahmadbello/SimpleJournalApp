@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
-import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.database.model.JournalEntry;
 import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
 import com.example.regent.simplejournalapp.utils.RecyclerTouchListener;
@@ -37,7 +36,7 @@ import java.util.List;
 public class JournalActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = JournalActivity.class.getSimpleName();
-    private List<Journal> journalList = new ArrayList<>();
+    private List<JournalEntry> mJournalEntryList = new ArrayList<>();
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private FloatingActionButton floatingActionButton;
@@ -53,7 +52,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_journal);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        journalAdapter = new JournalAdapter(this, journalList);
+        journalAdapter = new JournalAdapter(this, mJournalEntryList);
 
         recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -67,7 +66,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
         helperDatabase = new JournalHelperDatabase(this);
 
-        journalList.addAll(helperDatabase.getAllJournal());
+        mJournalEntryList.addAll(helperDatabase.getAllJournal());
 
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView,
                 new RecyclerTouchListener.ClickListener() {
@@ -102,11 +101,11 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         long id = helperDatabase.insertJournal(journal);
 
         // get the newly inserted journal from db
-        Journal journal1 = helperDatabase.getJournal(id);
+        JournalEntry journalEntry1 = helperDatabase.getJournal(id);
 
-        if (journal1 != null) {
+        if (journalEntry1 != null) {
             // adding new journal to array list at 0 position
-            journalList.add(0, journal1);
+            mJournalEntryList.add(0, journalEntry1);
 
             // refreshing the list
             journalAdapter.notifyDataSetChanged();
@@ -121,16 +120,16 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
      * item in the list by its position
      */
     private void updateJournal(String journal, int position){
-        Journal journal1 = journalList.get(position);
+        JournalEntry journalEntry1 = mJournalEntryList.get(position);
 
         // updating journal text
-        journal1.setJournal(journal);
+        journalEntry1.setJournal(journal);
 
         // updating quote in DB
-        helperDatabase.updateJournal(journal1);
+        helperDatabase.updateJournal(journalEntry1);
 
         // refreshing the list
-        journalList.set(position, journal1);
+        mJournalEntryList.set(position, journalEntry1);
 
         journalAdapter.notifyDataSetChanged();
     }
@@ -174,11 +173,11 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
     /**
      * Shows alert dialog with EditText options to enter / edit
-     * a journal.
-     * when shouldUpdate=true, it automatically displays old journal and changes the
+     * a journalEntry.
+     * when shouldUpdate=true, it automatically displays old journalEntry and changes the
      * button text to UPDATE
      */
-    private void showJournalDialog(final boolean shouldUpdate, final Journal journal, final int position) {
+    private void showJournalDialog(final boolean shouldUpdate, final JournalEntry journalEntry, final int position) {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
         View view = layoutInflaterAndroid.inflate(R.layout.journal_dialog, null);
 
@@ -189,8 +188,8 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         TextView dialogTitle = view.findViewById(R.id.journal_title);
         dialogTitle.setText(!shouldUpdate ? getString(R.string.new_journal_title) : getString(R.string.update_journal_title));
 
-        if (shouldUpdate && journal != null) {
-            inputJournal.setText(journal.getJournal());
+        if (shouldUpdate && journalEntry != null) {
+            inputJournal.setText(journalEntry.getJournal());
         }
         alertDialogBuilderUserInput
                 .setCancelable(false)
@@ -214,18 +213,18 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
             public void onClick(View v) {
                 // Show toast message when no text is entered
                 if (TextUtils.isEmpty(inputJournal.getText().toString())) {
-                    Toast.makeText(JournalActivity.this, "Enter your Journal!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(JournalActivity.this, "Enter your JournalEntry!", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
                     alertDialog.dismiss();
                 }
 
-                // check if user updating journal
-                if (shouldUpdate && journal != null) {
-                    // update journal by it's id
+                // check if user updating journalEntry
+                if (shouldUpdate && journalEntry != null) {
+                    // update journalEntry by it's id
                     updateJournal(inputJournal.getText().toString(), position);
                 } else {
-                    // create new journal
+                    // create new journalEntry
                     createJournal(inputJournal.getText().toString());
                 }
             }
@@ -239,10 +238,10 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
 
     private void deleteJournal(int position) {
         // deleting the journal from db
-        helperDatabase.deleteJournal(journalList.get(position));
+        helperDatabase.deleteJournal(mJournalEntryList.get(position));
 
         // removing the journal from the list
-        journalList.remove(position);
+        mJournalEntryList.remove(position);
         journalAdapter.notifyItemRemoved(position);
 
     }
@@ -259,7 +258,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialogInterface, int option) {
                 if (option == 0){
-                    showJournalDialog(true, journalList.get(position), position);
+                    showJournalDialog(true, mJournalEntryList.get(position), position);
                 } else {
                     deleteJournal(position);
                 }

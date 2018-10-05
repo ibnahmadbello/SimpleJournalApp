@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.database.model.JournalEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +26,13 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         // Create Journals
-        sqLiteDatabase.execSQL(Journal.CREATE_TABLE);
+        sqLiteDatabase.execSQL(JournalEntry.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         // Drop older Table if it existed
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Journal.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + JournalEntry.TABLE_NAME);
 
         // Create Table again
         onCreate(sqLiteDatabase);
@@ -45,10 +45,10 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         // `id` and `timestamp` will be inserted automatically.
         // no need to add them
-        values.put(Journal.COLUMN_JOURNAL_DETAIL, journal);
+        values.put(JournalEntry.COLUMN_JOURNAL_DETAIL, journal);
 
         // insert row
-        long id = db.insert(Journal.TABLE_NAME, null, values);
+        long id = db.insert(JournalEntry.TABLE_NAME, null, values);
 
         // close db connection
         db.close();
@@ -57,36 +57,36 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         return id;
     }
 
-    public Journal getJournal(long id) {
+    public JournalEntry getJournal(long id) {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(Journal.TABLE_NAME,
-                new String[]{Journal.COLUMN_ID, Journal.COLUMN_JOURNAL_DETAIL, Journal.COLUMN_TIMESTAMP},
-                Journal.COLUMN_ID + "=?",
+        Cursor cursor = db.query(JournalEntry.TABLE_NAME,
+                new String[]{JournalEntry.COLUMN_ID, JournalEntry.COLUMN_JOURNAL_DETAIL, JournalEntry.COLUMN_TIMESTAMP},
+                JournalEntry.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
 
         // prepare note object
-        Journal journal = new Journal(
-                cursor.getInt(cursor.getColumnIndex(Journal.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Journal.COLUMN_JOURNAL_DETAIL)),
-                cursor.getString(cursor.getColumnIndex(Journal.COLUMN_TIMESTAMP)));
+        JournalEntry journalEntry = new JournalEntry(
+                cursor.getInt(cursor.getColumnIndex(JournalEntry.COLUMN_ID)),
+                cursor.getString(cursor.getColumnIndex(JournalEntry.COLUMN_JOURNAL_DETAIL)),
+                cursor.getString(cursor.getColumnIndex(JournalEntry.COLUMN_TIMESTAMP)));
 
         // close the db connection
         cursor.close();
 
-        return journal;
+        return journalEntry;
     }
 
-    public List<Journal> getAllJournal() {
-        List<Journal> journals = new ArrayList<>();
+    public List<JournalEntry> getAllJournal() {
+        List<JournalEntry> journalEntries = new ArrayList<>();
 
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + Journal.TABLE_NAME + " ORDER BY " +
-                Journal.COLUMN_TIMESTAMP + " DESC";
+        String selectQuery = "SELECT  * FROM " + JournalEntry.TABLE_NAME + " ORDER BY " +
+                JournalEntry.COLUMN_TIMESTAMP + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -94,12 +94,12 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Journal journal = new Journal();
-                journal.setId(cursor.getInt(cursor.getColumnIndex(Journal.COLUMN_ID)));
-                journal.setJournal(cursor.getString(cursor.getColumnIndex(Journal.COLUMN_JOURNAL_DETAIL)));
-                journal.setTimestamp(cursor.getString(cursor.getColumnIndex(Journal.COLUMN_TIMESTAMP)));
+                JournalEntry journalEntry = new JournalEntry();
+                journalEntry.setId(cursor.getInt(cursor.getColumnIndex(JournalEntry.COLUMN_ID)));
+                journalEntry.setJournal(cursor.getString(cursor.getColumnIndex(JournalEntry.COLUMN_JOURNAL_DETAIL)));
+                journalEntry.setTimestamp(cursor.getString(cursor.getColumnIndex(JournalEntry.COLUMN_TIMESTAMP)));
 
-                journals.add(journal);
+                journalEntries.add(journalEntry);
             } while (cursor.moveToNext());
         }
 
@@ -107,11 +107,11 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         db.close();
 
         // return notes list
-        return journals;
+        return journalEntries;
     }
 
     public int getJournalsCount() {
-        String countQuery = "SELECT  * FROM " + Journal.TABLE_NAME;
+        String countQuery = "SELECT  * FROM " + JournalEntry.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
 
@@ -123,21 +123,21 @@ public class JournalHelperDatabase extends SQLiteOpenHelper {
         return count;
     }
 
-    public int updateJournal(Journal journal) {
+    public int updateJournal(JournalEntry journalEntry) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(Journal.COLUMN_JOURNAL_DETAIL, journal.getJournal());
+        values.put(JournalEntry.COLUMN_JOURNAL_DETAIL, journalEntry.getJournal());
 
         // updating row
-        return db.update(Journal.TABLE_NAME, values, Journal.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(journal.getId())});
+        return db.update(JournalEntry.TABLE_NAME, values, JournalEntry.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(journalEntry.getId())});
     }
 
-    public void deleteJournal(Journal journal) {
+    public void deleteJournal(JournalEntry journalEntry) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(Journal.TABLE_NAME, Journal.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(journal.getId())});
+        db.delete(JournalEntry.TABLE_NAME, JournalEntry.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(journalEntry.getId())});
         db.close();
 
     }

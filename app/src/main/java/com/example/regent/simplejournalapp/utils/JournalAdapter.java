@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.regent.simplejournalapp.R;
-import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.database.model.JournalEntry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,11 +19,11 @@ import java.util.List;
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalViewHolder>{
 
     private Context context;
-    private List<Journal> journalList;
+    private List<JournalEntry> mJournalEntryList;
 
-    public JournalAdapter(Context context, List<Journal> journalList){
+    public JournalAdapter(Context context, List<JournalEntry> journalEntryList){
         this.context = context;
-        this.journalList = journalList;
+        this.mJournalEntryList = journalEntryList;
     }
 
     public class JournalViewHolder extends RecyclerView.ViewHolder{
@@ -50,21 +50,21 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
     @Override
     public void onBindViewHolder(JournalViewHolder holder, int position) {
 
-        Journal journal = journalList.get(position);
+        JournalEntry journalEntry = mJournalEntryList.get(position);
 
-        holder.journaldetail.setText(journal.getJournal());
+        holder.journaldetail.setText(journalEntry.getJournal());
 
         // Displaying dot from HTML character code
         holder.dot.setText(Html.fromHtml("&#8226;"));
 
         // Formatting and displaying timestamp
-        holder.timestamp.setText(formatDate(journal.getTimestamp()));
+        holder.timestamp.setText(formatDate(journalEntry.getTimestamp()));
 
     }
 
     @Override
     public int getItemCount() {
-        return journalList.size();
+        return mJournalEntryList.size();
     }
 
     /**
