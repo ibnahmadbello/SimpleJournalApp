@@ -28,5 +28,5 @@ public interface TaskDao {
     void deleteJournal(JournalEntry journalEntry);
 
     @Query("SELECT * FROM journal WHERE id = :id")
-    LiveData<JournalEntry> loadTaskById(int id);
+    LiveData<JournalEntry> loadJournalById(int id);
 }
