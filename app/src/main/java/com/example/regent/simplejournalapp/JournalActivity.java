@@ -1,8 +1,11 @@
 package com.example.regent.simplejournalapp;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +30,7 @@ import com.example.regent.simplejournalapp.database.model.JournalEntry;
 import com.example.regent.simplejournalapp.utils.AppExecutors;
 import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
+import com.example.regent.simplejournalapp.utils.MainViewModel;
 import com.example.regent.simplejournalapp.utils.RecyclerTouchListener;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -94,10 +98,19 @@ public class JournalActivity extends AppCompatActivity implements JournalAdapter
             }
         });
 
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        setupViewModel();
+    }
 
-
-
-
+    private void setupViewModel(){
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getJournal().observe(this, new Observer<List<JournalEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<JournalEntry> journalEntries) {
+                Log.d(TAG, "Updating list of tasks from LiveData in ViewModel");
+                journalAdapter.setJournals(journalEntries);
+            }
+        });
     }
 
 
@@ -133,7 +146,7 @@ public class JournalActivity extends AppCompatActivity implements JournalAdapter
     @Override
     public void onItemClickListener(int itemId) {
         Intent intent = new Intent(JournalActivity.this, AddJournalActivity.class);
-        intent.putExtra(AddJournalActivity.EXTRA_TASK_ID, itemId);
+        intent.putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, itemId);
         startActivity(intent);
     }
 }

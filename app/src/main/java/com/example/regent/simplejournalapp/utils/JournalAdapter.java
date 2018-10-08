@@ -20,7 +20,7 @@ import java.util.Locale;
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalViewHolder>{
 
     // Constant for date format
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     // Member variable to handle item clicks
     private ItemClickListener mItemClickListener;
@@ -83,6 +83,9 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
 
     @Override
     public int getItemCount() {
+        if (mJournalEntries == null){
+            return 0;
+        }
         return mJournalEntries.size();
     }
 

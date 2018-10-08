@@ -14,6 +14,7 @@ import com.example.regent.simplejournalapp.database.model.AppDatabase;
 import com.example.regent.simplejournalapp.database.model.JournalEntry;
 import com.example.regent.simplejournalapp.utils.AddJournalViewModel;
 import com.example.regent.simplejournalapp.utils.AddJournalViewModelFactory;
+import com.example.regent.simplejournalapp.utils.AppExecutors;
 
 import java.util.Date;
 
@@ -99,5 +100,19 @@ public class AddJournalActivity extends AppCompatActivity {
     public void onSaveButtonClicked(){
         String journal = mEditText.getText().toString();
         Date date = new Date();
+
+        final JournalEntry journalEntry = new JournalEntry(journal, date);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mJournalId == DEFAULT_JOURNAL_ID){
+                    mDb.taskDao().insertJournal(journalEntry);
+                } else {
+                    journalEntry.setId(mJournalId);
+                    mDb.taskDao().updateJournal(journalEntry);
+                }
+                finish();
+            }
+        });
     }
 }
