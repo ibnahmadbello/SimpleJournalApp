@@ -9,24 +9,33 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.regent.simplejournalapp.R;
-import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.database.model.JournalEntry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalViewHolder>{
 
-    private Context context;
-    private List<Journal> journalList;
+    // Constant for date format
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public JournalAdapter(Context context, List<Journal> journalList){
+    // Member variable to handle item clicks
+    private ItemClickListener mItemClickListener;
+
+    private Context context;
+    private List<JournalEntry> mJournalEntries;
+    // Date formatter
+    private SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+
+    public JournalAdapter(Context context, ItemClickListener listener){
         this.context = context;
-        this.journalList = journalList;
+        mItemClickListener = listener;
     }
 
-    public class JournalViewHolder extends RecyclerView.ViewHolder{
+    public class JournalViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView dot;
         public TextView timestamp;
         public TextView journaldetail;
@@ -36,8 +45,14 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
             dot = view.findViewById(R.id.dot);
             timestamp = view.findViewById(R.id.timestamp);
             journaldetail = view.findViewById(R.id.journal);
+            view.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+            int elementId = mJournalEntries.get(getAdapterPosition()).getId();
+            mItemClickListener.onItemClickListener(elementId);
+        }
     }
 
     @Override
@@ -50,21 +65,28 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
     @Override
     public void onBindViewHolder(JournalViewHolder holder, int position) {
 
-        Journal journal = journalList.get(position);
+        // Determine the values of the wanted data
+        JournalEntry journalEntry = mJournalEntries.get(position);
+        String journal = journalEntry.getJournal();
+        String dueDate = dateFormat.format(journalEntry.getTimestamp());
 
-        holder.journaldetail.setText(journal.getJournal());
+
+        holder.journaldetail.setText(journal);
 
         // Displaying dot from HTML character code
         holder.dot.setText(Html.fromHtml("&#8226;"));
 
         // Formatting and displaying timestamp
-        holder.timestamp.setText(formatDate(journal.getTimestamp()));
+        holder.timestamp.setText(dueDate);
 
     }
 
     @Override
     public int getItemCount() {
-        return journalList.size();
+        if (mJournalEntries == null){
+            return 0;
+        }
+        return mJournalEntries.size();
     }
 
     /**
@@ -84,6 +106,21 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
         }
 
         return "";
+    }
+
+    public List<JournalEntry> getJournalEntries(){
+        return mJournalEntries;
+    }
+
+    // When data changes, this method updates the list of taskEntries
+    // and notifies the adapter to use the new values on it
+    public void setJournals(List<JournalEntry> journalEntries){
+        mJournalEntries = journalEntries;
+        notifyDataSetChanged();
+    }
+
+    public interface ItemClickListener{
+        void onItemClickListener(int itemId);
     }
 
 }

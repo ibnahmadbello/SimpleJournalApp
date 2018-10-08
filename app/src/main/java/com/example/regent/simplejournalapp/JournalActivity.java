@@ -1,13 +1,17 @@
 package com.example.regent.simplejournalapp;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -21,10 +25,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.regent.simplejournalapp.database.JournalHelperDatabase;
-import com.example.regent.simplejournalapp.database.model.Journal;
+import com.example.regent.simplejournalapp.database.model.AppDatabase;
+import com.example.regent.simplejournalapp.database.model.JournalEntry;
+import com.example.regent.simplejournalapp.utils.AppExecutors;
 import com.example.regent.simplejournalapp.utils.ItemDividerDecoration;
 import com.example.regent.simplejournalapp.utils.JournalAdapter;
+import com.example.regent.simplejournalapp.utils.MainViewModel;
 import com.example.regent.simplejournalapp.utils.RecyclerTouchListener;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,10 +40,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JournalActivity extends AppCompatActivity implements View.OnClickListener{
+public class JournalActivity extends AppCompatActivity implements JournalAdapter.ItemClickListener{
 
     private static final String TAG = JournalActivity.class.getSimpleName();
-    private List<Journal> journalList = new ArrayList<>();
+    private List<JournalEntry> mJournalEntryList = new ArrayList<>();
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private FloatingActionButton floatingActionButton;
@@ -45,7 +51,7 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
     TextView journalCountDisplay;
 
     private JournalAdapter journalAdapter;
-    private JournalHelperDatabase helperDatabase;
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,87 +59,60 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_journal);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        journalAdapter = new JournalAdapter(this, journalList);
+        journalAdapter = new JournalAdapter(this, this);
 
         recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new ItemDividerDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recyclerView.setAdapter(journalAdapter);
 
+        DividerItemDecoration decoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(decoration);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                AppExecutors.getInstance().diskIO().execute(new Runnable(){
+                    @Override
+                    public void run() {
+                        int position = viewHolder.getAdapterPosition();
+                        List<JournalEntry> journals = journalAdapter.getJournalEntries();
+                        mDb.taskDao().deleteJournal(journals.get(position));
+                    }
+                });
+            }
+        }).attachToRecyclerView(recyclerView);
+
         floatingActionButton = findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(this);
-
-        helperDatabase = new JournalHelperDatabase(this);
-
-        journalList.addAll(helperDatabase.getAllJournal());
-
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this, recyclerView,
-                new RecyclerTouchListener.ClickListener() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view, int position) {
-                showActionsDialog(position);
+            public void onClick(View view) {
+                Intent addJournalIntent = new Intent(JournalActivity.this, AddJournalActivity.class);
+                startActivity(addJournalIntent);
             }
+        });
 
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        setupViewModel();
+    }
+
+    private void setupViewModel(){
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getJournal().observe(this, new Observer<List<JournalEntry>>() {
             @Override
-            public void onLongClick(View view, int position) {
-
+            public void onChanged(@Nullable List<JournalEntry> journalEntries) {
+                Log.d(TAG, "Updating list of tasks from LiveData in ViewModel");
+                journalAdapter.setJournals(journalEntries);
             }
-        }));
-
-        journalCountDisplay = findViewById(R.id.user_mail);
-        try {
-            journalCountDisplay.setText(getResources().getString(R.string.first_part_display_count)
-                    + " " + helperDatabase.getJournalsCount() + " " +getResources().getString(R.string.second_part_display_count));
-        } catch (Exception e){
-            Log.d(TAG, "Error message: " + e.getMessage());
-        }
-
+        });
     }
 
-    /**
-     * Inserting new journal in db
-     * and refreshing the list
-     */
-    private void createJournal(String journal) {
-        // inserting journal in db and getting
-        // newly inserted journal id
-        long id = helperDatabase.insertJournal(journal);
-
-        // get the newly inserted journal from db
-        Journal journal1 = helperDatabase.getJournal(id);
-
-        if (journal1 != null) {
-            // adding new journal to array list at 0 position
-            journalList.add(0, journal1);
-
-            // refreshing the list
-            journalAdapter.notifyDataSetChanged();
-
-        }
-
-
-    }
-
-    /**
-     * Updating journal in the DB and updating
-     * item in the list by its position
-     */
-    private void updateJournal(String journal, int position){
-        Journal journal1 = journalList.get(position);
-
-        // updating journal text
-        journal1.setJournal(journal);
-
-        // updating quote in DB
-        helperDatabase.updateJournal(journal1);
-
-        // refreshing the list
-        journalList.set(position, journal1);
-
-        journalAdapter.notifyDataSetChanged();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,109 +142,11 @@ public class JournalActivity extends AppCompatActivity implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.fab:
-                showJournalDialog(false, null, -1);
-                break;
-        }
+    public void onItemClickListener(int itemId) {
+        Intent intent = new Intent(JournalActivity.this, AddJournalActivity.class);
+        intent.putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, itemId);
+        startActivity(intent);
     }
-
-    /**
-     * Shows alert dialog with EditText options to enter / edit
-     * a journal.
-     * when shouldUpdate=true, it automatically displays old journal and changes the
-     * button text to UPDATE
-     */
-    private void showJournalDialog(final boolean shouldUpdate, final Journal journal, final int position) {
-        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
-        View view = layoutInflaterAndroid.inflate(R.layout.journal_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(JournalActivity.this);
-        alertDialogBuilderUserInput.setView(view);
-
-        final EditText inputJournal = view.findViewById(R.id.journal_detail);
-        TextView dialogTitle = view.findViewById(R.id.journal_title);
-        dialogTitle.setText(!shouldUpdate ? getString(R.string.new_journal_title) : getString(R.string.update_journal_title));
-
-        if (shouldUpdate && journal != null) {
-            inputJournal.setText(journal.getJournal());
-        }
-        alertDialogBuilderUserInput
-                .setCancelable(false)
-                .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialogBox, int id) {
-
-                    }
-                })
-                .setNegativeButton("cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogBox, int id) {
-                                dialogBox.cancel();
-                            }
-                        });
-
-        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
-        alertDialog.show();
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Show toast message when no text is entered
-                if (TextUtils.isEmpty(inputJournal.getText().toString())) {
-                    Toast.makeText(JournalActivity.this, "Enter your Journal!", Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    alertDialog.dismiss();
-                }
-
-                // check if user updating journal
-                if (shouldUpdate && journal != null) {
-                    // update journal by it's id
-                    updateJournal(inputJournal.getText().toString(), position);
-                } else {
-                    // create new journal
-                    createJournal(inputJournal.getText().toString());
-                }
-            }
-        });
-    }
-
-    /**
-     * Deleting journal from SQLite and removing the
-     * item from the list by its position
-     **/
-
-    private void deleteJournal(int position) {
-        // deleting the journal from db
-        helperDatabase.deleteJournal(journalList.get(position));
-
-        // removing the journal from the list
-        journalList.remove(position);
-        journalAdapter.notifyItemRemoved(position);
-
-    }
-
-    /**
-     * Opens dialog with Edit and Delete options
-     */
-    private void showActionsDialog(final int position){
-        CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Option");
-        builder.setItems(colors, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int option) {
-                if (option == 0){
-                    showJournalDialog(true, journalList.get(position), position);
-                } else {
-                    deleteJournal(position);
-                }
-            }
-        });
-        builder.show();
-    }
-
 }

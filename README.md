@@ -1,5 +1,5 @@
 # SimpleJournalApp
-This is a simple journal app where a user can sign up or login using Google Account.
+This is a simple journalEntry app where a user can sign up or login using Google Account.
 It acts like a diary where user can add, modify and delete any entry.
 
 # This app is an assessment submitted to Andela Learning Community in order to be eligible for the Google Udacity African Scholarship.
